@@ -76,7 +76,7 @@ JOYSTICK_HANDLE.init()
 # Setup the arrays
 JOYSTICK_AXES = list(range(JOYSTICK_HANDLE.get_numaxes()))
 JOYSTICK_BUTTONS = list(range(JOYSTICK_HANDLE.get_numbuttons()))
-JOYSTICK_HATS = list(range(JOYSTICK_HANDLE.get_numhats()))
+JOYSTICK_HATS = list(range(JOYSTICK_HANDLE.get_numhats() * 2))
 TEMP_JOYSTICK_AXES = []
 TEMP_JOYSTICK_BUTTONS = []
 TEMP_JOYSTICK_HATS = []
@@ -106,7 +106,9 @@ while not EXIT_LOOP:
 
         # Grab the hat data
         for _hat in range(JOYSTICK_HANDLE.get_numhats()):
-            JOYSTICK_HATS[_hat] = JOYSTICK_HANDLE.get_hat(_hat)
+            # Convert to handle like Axis
+            JOYSTICK_HATS[_hat*2] = JOYSTICK_HANDLE.get_hat(_hat)[0]
+            JOYSTICK_HATS[(_hat*2)+1] = JOYSTICK_HANDLE.get_hat(_hat)[1]
 
         # Do we have any updates?
         if not compareInputs(TEMP_JOYSTICK_AXES, JOYSTICK_AXES):
