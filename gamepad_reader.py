@@ -12,6 +12,7 @@ JOYSTICK_HANDLE = None
 JOYSTICK_TO_USE = None
 JOYSTICK_AXES = []
 JOYSTICK_BUTTONS = []
+JOYSTICK_HATS = []
 
 # Some globals for websockets
 WEBSOCKET_SERVER = None
@@ -75,8 +76,10 @@ JOYSTICK_HANDLE.init()
 # Setup the arrays
 JOYSTICK_AXES = list(range(JOYSTICK_HANDLE.get_numaxes()))
 JOYSTICK_BUTTONS = list(range(JOYSTICK_HANDLE.get_numbuttons()))
+JOYSTICK_HATS = list(range(JOYSTICK_HANDLE.get_numhats() * 2))
 TEMP_JOYSTICK_AXES = []
 TEMP_JOYSTICK_BUTTONS = []
+TEMP_JOYSTICK_HATS = []
 
 # Get the websocket server going
 print(f"Starting Websocket Server on port {WEBSOCKET_PORT}...")
@@ -101,6 +104,12 @@ while not EXIT_LOOP:
         for _button in range(JOYSTICK_HANDLE.get_numbuttons()):
             JOYSTICK_BUTTONS[_button] = JOYSTICK_HANDLE.get_button(_button)
 
+        # Grab the hat data
+        for _hat in range(JOYSTICK_HANDLE.get_numhats()):
+            # Convert to handle like Axis
+            JOYSTICK_HATS[_hat*2] = JOYSTICK_HANDLE.get_hat(_hat)[0]
+            JOYSTICK_HATS[(_hat*2)+1] = JOYSTICK_HANDLE.get_hat(_hat)[1]
+
         # Do we have any updates?
         if not compareInputs(TEMP_JOYSTICK_AXES, JOYSTICK_AXES):
             print(f"Axes:{JOYSTICK_AXES}")
@@ -108,10 +117,14 @@ while not EXIT_LOOP:
         if not compareInputs(TEMP_JOYSTICK_BUTTONS, JOYSTICK_BUTTONS):
             print(f"Btns:{JOYSTICK_BUTTONS}")
             WEBSOCKET_SERVER.send_message_to_all(arrayDump(["btns"]+JOYSTICK_BUTTONS))
+        if not compareInputs(TEMP_JOYSTICK_HATS, JOYSTICK_HATS):
+            print(f"Hats:{JOYSTICK_HATS}")
+            WEBSOCKET_SERVER.send_message_to_all(arrayDump(["hats"]+JOYSTICK_HATS))
         
         # Update our temporary values
         TEMP_JOYSTICK_AXES =  JOYSTICK_AXES.copy()
         TEMP_JOYSTICK_BUTTONS = JOYSTICK_BUTTONS.copy()
+        TEMP_JOYSTICK_HATS = JOYSTICK_HATS.copy()
 
     except KeyboardInterrupt:
         print("Keyboard Interrupt Detected - Closing")
